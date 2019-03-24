@@ -6,8 +6,8 @@ use App\Contracts\Entity;
 use App\Contracts\EntityRepository;
 use App\Contracts\TransactionContract;
 use App\Entities\TransactionContext;
+use App\Reactors\UnitHandler;
 use App\Entities\Units;
-use Closure;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Pipeline\Pipeline;
 
@@ -57,21 +57,11 @@ class UnitOfWorkRepository
             });
     }
 
-    private function getHandler(Entity $entity): Closure
+    private function getHandler(Entity $entity): UnitHandler
     {
-        return function(TransactionContext $transactionContext, Closure $next) use ($entity) {
-            $repo = $this->getEntityRepo($entity);
+        $repo = $this->getEntityRepo($entity);
 
-            if ($repo->save($entity)) {
-                $transactionContext->incrementSaves();
-
-                return $next($transactionContext);
-            }
-
-            $transactionContext->incrementFailures();
-
-            return $next($transactionContext);
-        };
+        return UnitHandler::saves($entity, $repo);
     }
 
     private function getEntityRepo(Entity $entity): EntityRepository

@@ -2,7 +2,7 @@
 
 namespace App\Entities;
 
-use Closure;
+use App\Reactors\UnitHandler;
 
 class Units
 {
@@ -13,7 +13,7 @@ class Units
         $this->units = [];
     }
 
-    public function add(Closure $closure) : void
+    public function add(UnitHandler $closure) : void
     {
         array_push($this->units, $closure);
     }
